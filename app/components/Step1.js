@@ -5,26 +5,47 @@ export const Step1 = () => {
   const [userName, setUserName] = useState("");
   const [error, setError] = useState({
     firstName: "",
-    lastName: "Овгоо оруулна уу!",
-    userName: "Хэрэглэгчийн нэрээ оруулна уу!",
+    lastName: "",
+    userName: "",
   });
 
+  // const handleButtonClick = () => {
+  //   if (firstName !== "") {
+  //     setError((prev) => {
+  //       return {
+  //         ...prev,
+  //         firstName: "",
+  //       };
+  //     });
+  //   } else {
+  //     setError((prev) => {
+  //       return {
+  //         ...prev,
+  //         firstName: "Нэрээ оруулна уу!",
+  //       };
+  //     });
+  //   }
+  // };
   const handleButtonClick = () => {
-    if (firstName !== "") {
-      setError((prev) => {
-        return {
-          ...prev,
-          firstName: "",
-        };
-      });
-    } else {
-      setError((prev) => {
-        return {
-          ...prev,
-          firstName: "Нэрээ оруулна уу!",
-        };
-      });
+    let tempErrors = {
+      firstName: "",
+      lastName: "",
+      userName: "",
+    };
+
+    if (firstName.trim() === "") {
+      tempErrors.firstName = "Нэрээ оруулна уу!";
     }
+
+    if (lastName.trim() === "") {
+      tempErrors.lastName = "Овгоо оруулна уу!";
+    }
+
+    if (userName.trim() === "") {
+      tempErrors.userName = "Хэрэглэгчийн нэрээ оруулна уу!";
+    }
+
+    setError(tempErrors);
   };
   return (
     <div className="bg-white h-[655px] w-[480px] rounded-lg p-8 flex flex-col justify-between">
@@ -46,7 +67,7 @@ export const Step1 = () => {
               type="text"
               className="border-[1px] border-solid border-[#CBD5E1] h-[44px] rounded-lg"
               value={firstName}
-              onChange={() => setFirstName(event.target.value)}
+              onChange={(event) => setFirstName(event.target.value)}
             />
             <div className="text-[#E14942]">{error.firstName}</div>
           </div>
@@ -59,7 +80,9 @@ export const Step1 = () => {
               id="lName"
               name="lName"
               className="border-[1px] border-solid border-[#CBD5E1] h-[44px] rounded-lg"
+              onChange={(event) => setLastName(event.target.value)}
             />
+            <div className="text-[#E14942]">{error.lastName}</div>
           </div>
           <div className="flex flex-col">
             <label>
@@ -70,7 +93,9 @@ export const Step1 = () => {
               id="uName"
               name="uName"
               className="border-[1px] border-solid border-[#CBD5E1] h-[44px] rounded-lg"
+              onChange={(event) => setUserName(event.target.value)}
             />
+            <div className="text-[#E14942]">{error.userName}</div>
           </div>
         </form>
       </div>
