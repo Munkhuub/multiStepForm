@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { ArrowIcon } from "./assets/ArrowIcon";
 
 export const schema = z.object({
   firstName: z.string().min(1, { message: "Нэрээ оруулна уу!" }),
@@ -87,7 +87,7 @@ export const Step1 = (props) => {
             type="submit"
             className="border-[1px] border-solid border-[#CBD5E1] h-[44px] rounded-lg bg-[#121316] w-full text-white flex gap-2 justify-center items-center mb-px"
           >
-            Continue <p>3</p> <img></img>
+            Continue <p>1/3</p> <ArrowIcon />
           </button>
         </form>
       </div>
