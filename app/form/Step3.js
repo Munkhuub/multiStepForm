@@ -6,20 +6,30 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { date, z } from "zod";
 import { ArrowIcon3 } from "./assets/ArrowIcon3";
 import { LeftArrowIcon3 } from "./assets/LeftArrowIcon3";
+import { ImageIcon } from "./assets/ImageIcon";
+import { useContext } from "react";
+import { StepContext } from "./StepProvider";
 
 export const schema = z.object({
-  date: z.string().date({ message: "Төрсөн өдрөө оруулна уу." }),
+  date: z.coerce.date().refine((date) => !isNaN(date.getTime()), {
+    message: "Төрсөн өдрөө оруулна уу.",
+  }),
   profileImage: z.any(),
 });
 
-export const Step3 = () => {
+export const Step3 = (props) => {
+  const { values, setValues } = useContext(StepContext);
   const { register, handleSubmit, formState } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      date: "",
-      profileImage: "",
+      date: values.date,
+      profileImage: values.profileImage,
     },
   });
+  const [picture, setPicture] = useState(null);
+  const onChangePicture = (e) => {
+    setPicture(URL.createObjectURL(e.target.files[0]));
+  };
 
   return (
     <div className="bg-white h-[655px] w-[480px] rounded-lg p-8 flex flex-col justify-between">
@@ -35,7 +45,11 @@ export const Step3 = () => {
         <form
           className="flex flex-col gap-3"
           onSubmit={handleSubmit((data) => {
-            console.log(data);
+            const copyOfValues = { ...values };
+            copyOfValues.date = data.date;
+            copyOfValues.profileImage = data.profileImage;
+            setValues(copyOfValues);
+            props.handleNext();
           })}
         >
           <div className="flex flex-col">
@@ -53,25 +67,48 @@ export const Step3 = () => {
               </div>
             )}
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col relative h-[208px]">
             <label>
               Profile image<span className="text-[#E14942]">*</span>
             </label>
-            <input
-              type="file"
-              className="h-[180px] pt-17 px-25 rounded-lg bg-[#7F7F800D]"
-              {...register("profileImage")}
-            />
+            <div className="relative w-full h-[180px] bg-[#f2f4f6] rounded-lg border-none">
+              <input
+                type="file"
+                className="h-full w-full absolute top-0 left-0 pt-17 px-25 rounded-lg bg-[#7F7F800D] border-none opacity-0 z-10"
+                {...register("profileImage")}
+                onChange={onChangePicture}
+              />
+              <button
+                type="button"
+                onClick={() => setPicture(null)} // This removes the image
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center z-40"
+              >
+                ✕
+              </button>
+              {picture ? (
+                <img
+                  className="h-[180px] w-[416px] rounded-lg object-contain bg-[#7F7F800D] z-30"
+                  src={picture}
+                  alt="Uploaded preview"
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col justify-center items-center">
+                  <p>Upload Image</p>
+                  <ImageIcon />
+                </div>
+              )}
+            </div>
+
             {formState.errors.profileImage && (
               <div className="text-[#E14942]">
                 {formState.errors.profileImage.message}
               </div>
             )}
           </div>
-
           <div className="buttons flex gap-2">
             <button
-              type="submit"
+              type="button"
+              onClick={props.handlePrev}
               className="border-[1px] border-solid border-[#CBD5E1] h-[44px] w-[128px] rounded-lg bg-white flex gap-2 justify-center items-center mb-px"
             >
               <LeftArrowIcon3 />

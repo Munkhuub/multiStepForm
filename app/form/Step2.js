@@ -5,37 +5,44 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowIcon2 } from "./assets/ArrowIcon2";
 import { LeftArrowIcon2 } from "./assets/LeftArrowIcon2";
+import { useContext } from "react";
+import { StepContext } from "./StepProvider";
 
-export const schema = z.object({
-  email: z.string().email({ message: "Зөв мэйл хаяг оруулна уу." }),
-  phoneNumber: z
-    .string()
-    .min(8, { message: "8 оронтой байх ёстой." })
-    .refine(
-      (value) => {
-        const chars = value.split("");
-        return chars.every((char) =>
-          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(char)
-        );
-      },
-      { message: "Зөв утасны дугаар оруулна уу." }
-    ),
-  password: z.string().min(6, { message: "6 оронтой байх ёстой." }),
-  confirmPassword: z
-    .string()
-    .refine((data) => data.password === data.confirmPassword, {
-      message: "Passwords don't match",
-    }),
-});
+export const schema = z
+  .object({
+    email: z.string().email({ message: "Зөв мэйл хаяг оруулна уу." }),
+    phoneNumber: z
+      .string()
+      .min(8, { message: "8 оронтой байх ёстой." })
+      .refine(
+        (value) => {
+          const chars = value.split("");
+          return chars.every((char) =>
+            ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(char)
+          );
+        },
+        { message: "Зөв утасны дугаар оруулна уу." }
+      ),
+    password: z
+      .string()
+      .min(6, { message: "6 оронтой байх ёстой." })
+      .max(20, { message: "Хэтэрхий урт байна." }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Нууц үг таарахгүй байна.",
+    path: ["confirmPassword"],
+  });
 
 export const Step2 = (props) => {
+  const { values, setValues } = useContext(StepContext);
   const { register, handleSubmit, formState } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      email: "",
-      phoneNumber: "",
-      password: "",
-      confirmPassword: "",
+      email: values.email,
+      phoneNumber: values.phoneNumber,
+      password: values.password,
+      confirmPassword: values.confirmPassword,
     },
   });
 
@@ -52,7 +59,13 @@ export const Step2 = (props) => {
 
         <form
           className="flex flex-col gap-3 justify-between"
-          onSubmit={handleSubmit(() => {
+          onSubmit={handleSubmit((data) => {
+            const copyOfValues = { ...values };
+            copyOfValues.email = data.email;
+            copyOfValues.phoneNumber = data.phoneNumber;
+            copyOfValues.password = data.password;
+            copyOfValues.confirmPassword = data.confirmPassword;
+            setValues(copyOfValues);
             props.handleNext();
           })}
         >
@@ -92,7 +105,7 @@ export const Step2 = (props) => {
                 Password <span className="text-[#E14942]">*</span>
               </label>
               <input
-                type="text"
+                type="password"
                 className="border-[1px] border-solid border-[#CBD5E1] h-[44px] rounded-lg"
                 {...register("password")}
               />
@@ -107,7 +120,7 @@ export const Step2 = (props) => {
                 Confirm Password <span className="text-[#E14942]">*</span>
               </label>
               <input
-                type="text"
+                type="password"
                 className="border-[1px] border-solid border-[#CBD5E1] h-[44px] rounded-lg"
                 {...register("confirmPassword")}
               />
@@ -121,7 +134,8 @@ export const Step2 = (props) => {
 
           <div className="buttons flex gap-2">
             <button
-              type="submit"
+              type="button"
+              onClick={props.handlePrev}
               className="border-[1px] border-solid border-[#CBD5E1] h-[44px] w-[128px] rounded-lg bg-white flex gap-2 justify-center items-center mb-px"
             >
               <LeftArrowIcon2 />

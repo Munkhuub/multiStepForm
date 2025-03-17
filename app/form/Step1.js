@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowIcon } from "./assets/ArrowIcon";
+import { useContext } from "react";
+import { StepContext } from "./StepProvider";
 
 export const schema = z.object({
   firstName: z.string().min(1, { message: "Нэрээ оруулна уу!" }),
@@ -12,12 +14,14 @@ export const schema = z.object({
 });
 
 export const Step1 = (props) => {
+  const { values, setValues } = useContext(StepContext);
+
   const { register, handleSubmit, formState } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      userName: "",
+      firstName: values.firstName,
+      lastName: values.lastName,
+      userName: values.userName,
     },
   });
 
@@ -34,7 +38,12 @@ export const Step1 = (props) => {
 
         <form
           className="flex flex-col gap-3"
-          onSubmit={handleSubmit(() => {
+          onSubmit={handleSubmit((data) => {
+            const copyOfValues = { ...values };
+            copyOfValues.firstName = data.firstName;
+            copyOfValues.lastName = data.lastName;
+            copyOfValues.userName = data.userName;
+            setValues(copyOfValues);
             props.handleNext();
           })}
         >
